@@ -27,7 +27,7 @@ class ProductImageObserver
      */
     public function deleting(ProductImage $image): void
     {
-        Cloudinary::destroy($image->cloudinary_public_id);
+        app(\App\Services\CloudinaryService::class)->destroy($image->cloudinary_public_id);
     }
 
     /**

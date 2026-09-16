@@ -7,23 +7,18 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreContactChannelRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()->can('manage-contact');
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'platform' => 'required|string|max:50',
+            'handle' => 'required|string|max:255',
+            'url' => 'nullable|url|max:255',
+            'display_order' => 'integer|min:0',
         ];
     }
 }

@@ -2,65 +2,46 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PickupPoint;
 use App\Http\Requests\StorePickupPointRequest;
 use App\Http\Requests\UpdatePickupPointRequest;
+use App\Models\PickupPoint;
+use Inertia\Inertia;
 
 class PickupPointController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return Inertia::render('Admin/PickupPoints/Index', ['pickupPoints' => PickupPoint::latest()->get()]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function activeList()
     {
-        //
+        // For the checkout page's pickup-point dropdown
+        return PickupPoint::where('is_active', true)->get(['id', 'name', 'address']);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StorePickupPointRequest $request)
     {
-        //
+        PickupPoint::create($request->validated());
+
+        return back()->with('success', 'Pickup point added.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(PickupPoint $pickupPoint)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(PickupPoint $pickupPoint)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdatePickupPointRequest $request, PickupPoint $pickupPoint)
     {
-        //
+        $pickupPoint->update($request->validated());
+
+        return back()->with('success', 'Pickup point updated.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(PickupPoint $pickupPoint)
     {
-        //
+        $this->authorize('delete', $pickupPoint);
+
+        abort_if($pickupPoint->orders()->exists(), 422, 'Cannot delete a pickup point with existing orders. Deactivate it instead.');
+
+        $pickupPoint->delete();
+
+        return back()->with('success', 'Pickup point removed.');
     }
 }

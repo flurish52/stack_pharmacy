@@ -35,9 +35,9 @@ class TrainingPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Training $training): bool
+    public function update(User $user, ?Training $training = null): bool
     {
-        return false;
+        return $user->can('manage-training');
     }
 
     /**

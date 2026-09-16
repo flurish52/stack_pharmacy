@@ -2,65 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Training;
-use App\Http\Requests\StoreTrainingRequest;
 use App\Http\Requests\UpdateTrainingRequest;
+use App\Models\Training;
+use Inertia\Inertia;
 
 class TrainingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return Inertia::render('Training/Show', ['training' => Training::first()]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function edit()
     {
-        //
+        $this->authorize('update', Training::class);
+
+        return Inertia::render('Admin/Training/Edit', ['training' => Training::firstOrNew()]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreTrainingRequest $request)
+    public function update(UpdateTrainingRequest $request)
     {
-        //
-    }
+        Training::updateOrCreate(['id' => 1], $request->validated());
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Training $training)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Training $training)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateTrainingRequest $request, Training $training)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Training $training)
-    {
-        //
+        return back()->with('success', 'Training page updated.');
     }
 }

@@ -2,65 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ContactChannel;
 use App\Http\Requests\StoreContactChannelRequest;
 use App\Http\Requests\UpdateContactChannelRequest;
+use App\Models\ContactChannel;
+use Inertia\Inertia;
 
 class ContactChannelController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return Inertia::render('Contact/Index', [
+            'channels' => ContactChannel::orderBy('display_order')->get(),
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function adminIndex()
     {
-        //
+        return Inertia::render('Admin/ContactChannels/Index', [
+            'channels' => ContactChannel::orderBy('display_order')->get(),
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreContactChannelRequest $request)
     {
-        //
+        ContactChannel::create($request->validated());
+
+        return back()->with('success', 'Channel added.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(ContactChannel $contactChannel)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ContactChannel $contactChannel)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateContactChannelRequest $request, ContactChannel $contactChannel)
     {
-        //
+        $contactChannel->update($request->validated());
+
+        return back()->with('success', 'Channel updated.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ContactChannel $contactChannel)
     {
-        //
+        $this->authorize('delete', $contactChannel);
+
+        $contactChannel->delete();
+
+        return back()->with('success', 'Channel removed.');
     }
 }
