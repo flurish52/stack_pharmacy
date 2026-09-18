@@ -39,5 +39,7 @@ class RoleSeeder extends Seeder
         Role::firstOrCreate(['name' => 'staff'])->givePermissionTo([
             'view-orders', 'update-order-status',
         ]);
+
+        Role::firstOrCreate(['name' => 'customer']);
     }
 }

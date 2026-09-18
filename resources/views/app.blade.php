@@ -10,6 +10,7 @@
 
     <title inertia>{{ config('app.name', 'Stack Pharmacy') }}</title>
 
+    @routes
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @inertiaHead
 </head>

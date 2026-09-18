@@ -4,8 +4,9 @@ import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
 import { ZiggyVue } from '../../vendor/tightenco/ziggy'
 import ShopLayout from '@/Layouts/ShopLayout.vue'
-import AuthLayout from '@/Layouts/AuthLayout.vue'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
+import GuestLayout from "@/Layouts/GuestLayout.vue";
+import AccountLayout from "@/Layouts/AccountLayout.vue";
 
 const appName = import.meta.env.VITE_APP_NAME || 'Stack Pharmacy'
 const pages = import.meta.glob('./pages/**/*.vue')
@@ -35,21 +36,23 @@ createInertiaApp({
                 case name === 'Welcome':
                     return ShopLayout
                 case name.startsWith('Auth/'):
-                    return AuthLayout
+                    return GuestLayout
                 case name.startsWith('Admin/'):
                     return AdminLayout
                 case name.startsWith('Shop/'):
                     return ShopLayout
-                case name.startsWith('Cart'):
+                case name.startsWith('Cart/'):
                     return ShopLayout
-                case name.startsWith('Checkout'):
+                case name.startsWith('Checkout/'):
                     return ShopLayout
                 case name.startsWith('Services/'):
                     return ShopLayout
-                case name.startsWith('Training'):
+                case name.startsWith('Training/'):
                     return ShopLayout
-                case name.startsWith('Contact'):
+                case name.startsWith('ContactChannel/'):
                     return ShopLayout
+                case name.startsWith('Dashboard'):
+                    return AccountLayout
                 default:
                     return ShopLayout
             }

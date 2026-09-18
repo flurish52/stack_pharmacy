@@ -35,6 +35,12 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
                 'permissions' => $request->user()?->getAllPermissions()->pluck('name') ?? [],
             ],
+            'cart' => fn () => app(\App\Support\CartSession::class)->summary(),
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+            ],
+            'pharmacyWhatsapp' => config('services.pharmacy_whatsapp_number'),
         ];
     }
 }

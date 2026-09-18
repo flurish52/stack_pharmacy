@@ -52,4 +52,6 @@ return [
         'api_secret' => env('CLOUDINARY_API_SECRET'),
     ],
 
+    'pharmacy_whatsapp_number' => env('PHARMACY_WHATSAPP_NUMBER'),
+
 ];

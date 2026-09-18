@@ -12,8 +12,8 @@ class Product extends Model
 {
     use SoftDeletes;
     protected $fillable = ['category_id', 'name', 'slug', 'description', 'status'];
+    protected $appends = ['starting_price', 'primary_image_url'];
 
-// Product.php
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class)->withPivot('is_primary')->withTimestamps();
@@ -32,5 +32,22 @@ class Product extends Model
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class);
+    }
+
+
+    public function getStartingPriceAttribute(): ?string
+    {
+        // Cheapest in-stock variant; falls back to cheapest overall if everything's out of stock
+        $variant = $this->variants->where('stock_quantity', '>', 0)->sortBy('price')->first()
+            ?? $this->variants->sortBy('price')->first();
+
+        return $variant?->price;
+    }
+
+    public function getPrimaryImageUrlAttribute(): ?string
+    {
+        $image = $this->images->firstWhere('is_primary', true) ?? $this->images->first();
+
+        return $image?->url;
     }
 }

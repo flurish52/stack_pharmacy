@@ -10,7 +10,9 @@ class TrainingController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Training/Show', ['training' => Training::first()]);
+        return Inertia::render('Training/Index', [
+            'training' => Training::all()
+        ]);
     }
 
     public function edit()

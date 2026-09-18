@@ -11,6 +11,7 @@ class ServiceController extends Controller
 {
     public function index()
     {
+
         return Inertia::render('Services/Index', [
             'services' => Service::where('is_active', true)->get(),
         ]);
