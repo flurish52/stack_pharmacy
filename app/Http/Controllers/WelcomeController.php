@@ -15,13 +15,7 @@ class WelcomeController extends Controller
         return Inertia::render('Welcome', [
             'services' => Service::where('is_active', true)
                 ->limit(3)
-                ->get()
-                ->map(fn ($service) => [
-                    'id' => $service->id,
-                    'name' => $service->name,
-                    'description' => $service->description,
-                    'whatsapp_url' => $service->whatsappUrl(),
-                ]),
+                ->get(),
 
             'categories' => Category::withCount('products')
                 ->having('products_count', '>', 0)
@@ -33,7 +27,7 @@ class WelcomeController extends Controller
                 ->whereHas('variants', fn ($q) => $q->where('stock_quantity', '>', 0))
                 ->with(['variants', 'images'])
                 ->latest()
-                ->limit(8)
+                ->limit(10)
                 ->get()
                 ->map(function ($product) {
                     // Already scoped to products with ≥1 in-stock variant by whereHas
@@ -48,7 +42,6 @@ class WelcomeController extends Controller
                         'slug' => $product->slug,
                         'image_url' => $product->primary_image_url,
                         'price' => $product->starting_price,
-                        'compare_at_price' => $product->compare_at_price, // null if you don't have this column
                         'variant_id' => $defaultVariant?->id,
                         'variant_count' => $product->variants->count(),
                         'in_stock' => $inStockVariants->isNotEmpty(),

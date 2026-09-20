@@ -1,8 +1,7 @@
 <script setup>
-import { computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 
-const props = defineProps({
+defineProps({
     training: { type: Array, default: () => [] },
 })
 
@@ -13,16 +12,6 @@ const whatsappHref = (item) => {
     const message = `Hi, I would like to know more about "${item.title}".`
     return `https://wa.me/${number}?text=${encodeURIComponent(message)}`
 }
-
-// Cloudinary public_id -> delivery URL. Adjust cloud name / transform to match your account.
-const imageUrl = (item) =>
-    item.image_public_id
-        ? `https://res.cloudinary.com/YOUR_CLOUD_NAME/image/upload/f_auto,q_auto,w_800/${item.image_public_id}`
-        : null
-
-const sortedTraining = computed(() =>
-    [...props.training].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-)
 </script>
 
 <template>
@@ -36,16 +25,16 @@ const sortedTraining = computed(() =>
             </p>
         </div>
 
-        <div v-if="sortedTraining.length" class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div v-if="training.length" class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <article
-                v-for="item in sortedTraining"
+                v-for="item in training"
                 :key="item.id"
                 class="group flex flex-col overflow-hidden rounded-xl border border-neutral-text/10 bg-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-primary-dark/25 hover:shadow-[0_12px_32px_-12px_rgba(15,23,22,0.18)]"
             >
                 <div class="relative aspect-[16/10] w-full overflow-hidden bg-neutral-bg">
                     <img
-                        v-if="imageUrl(item)"
-                        :src="imageUrl(item)"
+                        v-if="item.image_url"
+                        :src="item.image_url"
                         :alt="item.title"
                         class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                         loading="lazy"

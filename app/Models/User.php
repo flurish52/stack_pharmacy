@@ -35,6 +35,15 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+
+    public const STAFF_ROLES = ['staff', 'admin', 'owner', 'super_admin'];
+
+    public function isStaffMember(): bool
+    {
+        return $this->hasAnyRole(self::STAFF_ROLES);
+    }
+
+
     protected function casts(): array
     {
         return [
@@ -52,6 +61,18 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
 
+    }
+
+    public function assignableRoles(): array
+    {
+        return $this->hasRole('super_admin')
+            ? ['staff', 'admin', 'owner']
+            : ['staff', 'admin'];
+    }
+
+    public function canManageStaff(User $target): bool
+    {
+        return $this->isNot($target) && $target->hasAnyRole($this->assignableRoles());
     }
 
 }

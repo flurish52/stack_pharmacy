@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactChannelController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaystackWebhookController;
 use App\Http\Controllers\PickupPointController;
@@ -12,8 +14,10 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductImageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +27,15 @@ use Illuminate\Support\Facades\Route;
 | PUBLIC (storefront)
 |--------------------------------------------------------------------------
 */
+
+Route::get('/mail-preview/{status}', function (string $status) {
+    return new \App\Mail\OrderStatusUpdated(
+        \App\Models\Order::with('pickupPoint')->latest()->firstOrFail(),
+        $status
+    );
+});
+
+
 
 Route::get('/', [WelcomeController::class, 'index'])->name('pharm.home');
 
@@ -120,16 +133,22 @@ Route::middleware('auth')
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Orders
-        // NOTE: no permission gate here (same as your original). Consider
-        // adding a `can:manage-orders` gate if only certain staff should access these.
         Route::prefix('orders')->name('orders.')->group(function () {
-            Route::get('/', [OrderController::class, 'index'])->name('index');
-            Route::get('/{order}', [OrderController::class, 'show'])->name('show');
-            Route::patch('/{order}/status', [OrderController::class, 'updateStatus'])->name('status');
-            Route::patch('/{order}/received', [OrderController::class, 'markReceived'])->name('received');
-            Route::patch('/{order}/cancel', [OrderController::class, 'cancel'])->name('cancel');
+            Route::middleware('can:view-orders')->group(function () {
+                Route::get('/', [OrderController::class, 'index'])->name('index');
+                Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+            });
+
+            Route::patch('/{order}/status', [OrderController::class, 'updateStatus'])
+                ->middleware('can:update-order-status')->name('status');
+
+            Route::patch('/{order}/received', [OrderController::class, 'markReceived'])
+                ->middleware('can:update-order-status')->name('received');
+
+            Route::patch('/{order}/cancel', [OrderController::class, 'cancel'])
+                ->middleware('can:cancel-order')->name('cancel');
         });
 
         // Products & product images
@@ -157,10 +176,12 @@ Route::middleware('auth')
             Route::delete('/{service}', [ServiceController::class, 'destroy'])->name('destroy');
         });
 
-        // Training page
+        // Training
         Route::middleware('can:manage-training')->prefix('training')->name('training.')->group(function () {
-            Route::get('/', [TrainingController::class, 'edit'])->name('edit');
-            Route::patch('/', [TrainingController::class, 'update'])->name('update');
+            Route::get('/', [TrainingController::class, 'adminIndex'])->name('index');
+            Route::post('/', [TrainingController::class, 'store'])->name('store');
+            Route::patch('/{training}', [TrainingController::class, 'update'])->name('update');
+            Route::delete('/{training}', [TrainingController::class, 'destroy'])->name('destroy');
         });
 
         // Contact channels
@@ -170,6 +191,21 @@ Route::middleware('auth')
             Route::patch('/{contactChannel}', [ContactChannelController::class, 'update'])->name('update');
             Route::delete('/{contactChannel}', [ContactChannelController::class, 'destroy'])->name('destroy');
         });
+
+        // Staff
+        Route::middleware('can:manage-staff')->prefix('staff')->name('staff.')->group(function () {
+            Route::get('/', [StaffController::class, 'index'])->name('index');
+            Route::post('/', [StaffController::class, 'store'])->name('store');
+            Route::patch('/{user}', [StaffController::class, 'update'])->name('update');
+            Route::post('/{user}/invite', [StaffController::class, 'resendInvite'])->name('invite');
+            Route::delete('/{user}', [StaffController::class, 'revoke'])->name('revoke');
+        });
+
+        Route::get('activity-log', [ActivityLogController::class, 'index'])
+            ->middleware('can:view-activity-log')->name('activity-log.index');
+
+        Route::get('reports', [ReportController::class, 'index'])
+            ->middleware('can:view-reports')->name('reports.index');
     });
 
 

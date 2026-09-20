@@ -47,13 +47,13 @@ class PaystackService
 
     public function markSuccessful(Payment $payment, array $verificationData): void
     {
-        // Idempotency guard lives here too, not just in the callers —
-        // this is the one place that's allowed to apply the side effects.
         if ($payment->status === 'success') {
             return;
         }
 
-        DB::transaction(function () use ($payment, $verificationData) {
+        $alerts = [];
+
+        DB::transaction(function () use ($payment, $verificationData, &$alerts) {
             $payment->update([
                 'status' => 'success',
                 'channel' => $verificationData['channel'] ?? null,
@@ -65,18 +65,40 @@ class PaystackService
             $order->update(['status' => 'paid']);
             $order->statusHistory()->create(['status' => 'paid']);
 
-            foreach ($order->items as $item) {
-                $variant = $item->variant()->lockForUpdate()->first();
-                $variant->decrement('stock_quantity', $item->quantity);
+            $threshold = (int) config('pharmacy.low_stock_threshold', 10);
 
-                if ($variant->stock_quantity <= config('app.low_stock_threshold')) {
-                    $this->push->notifyAdmins(
-                        title: 'Low Stock Alert',
-                        body: "{$variant->product->name} ({$variant->variant_name}) is down to {$variant->stock_quantity} units.",
-                    );
+            foreach ($order->items as $item) {
+                $variant = $item->variant()->withTrashed()->lockForUpdate()->with('product')->first();
+
+                if (! $variant) {
+                    continue;
+                }
+
+                $before = (int) $variant->stock_quantity;
+                $after = max(0, $before - $item->quantity); // never below zero
+
+                $variant->update(['stock_quantity' => $after]);
+
+                $name = ($variant->product?->name ?? 'A product').' ('.$variant->variant_name.')';
+                $url = '/admin/products/'.$variant->product_id.'/edit';
+
+                // Alert once, at the moment stock crosses the line, not on every later sale.
+                if ($after === 0 && $before > 0) {
+                    $alerts[] = ['title' => 'Out of stock', 'body' => "{$name} is now out of stock.", 'url' => $url];
+                } elseif ($after <= $threshold && $before > $threshold) {
+                    $alerts[] = ['title' => 'Low stock', 'body' => "{$name} is down to {$after} units.", 'url' => $url];
                 }
             }
         });
+
+        // Sent after the transaction commits; a push failure can never undo a payment.
+        foreach ($alerts as $alert) {
+            try {
+                $this->push->notifyAdmins(...$alert);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
 
         $order = $payment->order()->with('user')->first();
         $recipientEmail = $order->user->email ?? $order->guest_email;
