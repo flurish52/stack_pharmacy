@@ -18,6 +18,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\TrackOrderController;
 use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,14 @@ Route::get('/mail-preview/{status}', function (string $status) {
     );
 });
 
+
+Route::get('/track', [TrackOrderController::class, 'index'])
+    ->middleware('throttle:20,1')
+    ->name('track.index');
+
+Route::post('/track/{reference}/claim', [TrackOrderController::class, 'claim'])
+    ->middleware(['auth', 'throttle:10,1'])
+    ->name('track.claim');
 
 
 Route::get('/', [WelcomeController::class, 'index'])->name('pharm.home');

@@ -51,8 +51,21 @@ const remove = (training) => {
     }
 }
 
-const input =
-    'w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500'
+// Whole row opens the editor; real buttons inside keep their own behaviour.
+const onRowClick = (event, training) => {
+    if (event.target.closest('a, button')) return
+    openEdit(training)
+}
+
+const inputBase =
+    'w-full rounded-lg border bg-white px-3 py-2 text-sm text-neutral-text transition placeholder:text-neutral-text/40 focus:outline-none focus:ring-2'
+const inputClass = (error) =>
+    error
+        ? `${inputBase} border-accent-light focus:border-accent-light focus:ring-accent-light/20`
+        : `${inputBase} border-neutral-text/15 hover:border-neutral-text/30 focus:border-primary focus:ring-primary/20`
+
+const ghostBtn =
+    'inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 active:scale-[0.98]'
 </script>
 
 <template>
@@ -60,59 +73,105 @@ const input =
 
     <AdminLayout title="Training">
         <template #actions>
-            <Link href="/training" class="mr-4 text-sm text-emerald-700 hover:underline">View public page</Link>
-            <button
-                type="button"
-                class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-                @click="openCreate"
-            >
-                Add training
-            </button>
+            <div class="flex items-center gap-2">
+                <Link
+                    href="/training"
+                    class="group inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-white px-3.5 py-2 text-sm font-medium text-primary-dark transition hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-[0.98]"
+                >
+                    View public page
+                    <svg class="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 10h11M11 5l5 5-5 5" />
+                    </svg>
+                </Link>
+                <button
+                    type="button"
+                    class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 active:scale-[0.98]"
+                    @click="openCreate"
+                >
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                        <path d="M10 4v12M4 10h12" />
+                    </svg>
+                    Add training
+                </button>
+            </div>
         </template>
 
-        <p class="mb-4 text-sm text-gray-500">
-            This manages the content shown on the public Training page only. Enrollment, payment and hosting are not part of it.
-        </p>
-
-        <div class="rounded-lg border border-gray-200 bg-white">
-            <p v-if="trainings.length === 0" class="px-5 py-10 text-center text-sm text-gray-500">
-                No training entries yet. Add your first one.
+        <!-- Scope note -->
+        <div class="mb-4 flex gap-3 rounded-xl border border-neutral-text/10 bg-secondary/50 px-4 py-3 text-sm text-neutral-text/75">
+            <svg class="mt-0.5 h-4 w-4 shrink-0 text-primary-dark" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="10" cy="10" r="7.5" /><path d="M10 9.25v4M10 6.5h.01" />
+            </svg>
+            <p>
+                This manages the content shown on the public Training page only. Enrollment, payment and hosting are not part of it.
             </p>
+        </div>
+
+        <div class="overflow-hidden rounded-xl border border-neutral-text/10 bg-white">
+            <div v-if="trainings.length === 0" class="px-5 py-14 text-center">
+                <p class="font-heading font-medium text-neutral-text">No training entries yet</p>
+                <p class="mt-1 text-sm text-neutral-text/55">Add your first one to show it on the public page.</p>
+                <button
+                    type="button"
+                    class="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 active:scale-[0.98]"
+                    @click="openCreate"
+                >
+                    Add training
+                </button>
+            </div>
 
             <div v-else class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
-                    <thead class="border-b border-gray-200 text-xs text-gray-500">
+                    <thead class="border-b border-neutral-text/10 bg-neutral-bg text-xs text-neutral-text/55">
                     <tr>
                         <th class="px-5 py-3 font-medium">Training</th>
                         <th class="px-5 py-3 font-medium">Description</th>
                         <th class="px-5 py-3 text-right font-medium">Actions</th>
                     </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
-                    <tr v-for="training in trainings" :key="training.id" class="hover:bg-gray-50">
-                        <td class="px-5 py-3">
+                    <tbody class="divide-y divide-neutral-text/[0.07]">
+                    <tr
+                        v-for="training in trainings"
+                        :key="training.id"
+                        class="group cursor-pointer transition-colors duration-150 hover:bg-primary-light"
+                        @click="onRowClick($event, training)"
+                    >
+                        <td class="px-5 py-3.5">
                             <div class="flex items-center gap-3">
                                 <img
                                     v-if="training.image_url"
                                     :src="training.image_url"
                                     alt=""
-                                    class="h-12 w-12 shrink-0 rounded-md bg-gray-100 object-cover"
+                                    class="h-12 w-12 shrink-0 rounded-lg border border-neutral-text/10 bg-neutral-bg object-cover"
                                     loading="lazy"
                                 />
-                                <div v-else class="h-12 w-12 shrink-0 rounded-md bg-gray-100" />
-                                <span class="font-medium">{{ training.title }}</span>
+                                <div v-else class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-neutral-text/10 bg-neutral-bg text-neutral-text/30">
+                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <rect x="3" y="4" width="14" height="12" rx="2" /><circle cx="7.5" cy="8.5" r="1.25" /><path d="m17 13-4-4-7 7" />
+                                    </svg>
+                                </div>
+                                <span class="font-medium text-neutral-text">{{ training.title }}</span>
                             </div>
                         </td>
-                        <td class="max-w-md px-5 py-3 text-gray-600">
+                        <td class="max-w-md px-5 py-3.5 text-neutral-text/65">
                             <p class="line-clamp-2">{{ training.description || '-' }}</p>
                         </td>
-                        <td class="px-5 py-3 text-right">
-                            <button type="button" class="mr-3 text-emerald-700 hover:underline" @click="openEdit(training)">
-                                Edit
-                            </button>
-                            <button type="button" class="text-red-600 hover:underline" @click="remove(training)">
-                                Remove
-                            </button>
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center justify-end gap-2">
+                                <button
+                                    type="button"
+                                    :class="[ghostBtn, 'border-neutral-text/15 bg-white text-neutral-text group-hover:border-primary group-hover:bg-primary group-hover:text-white focus-visible:ring-primary/40']"
+                                    @click="openEdit(training)"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    type="button"
+                                    :class="[ghostBtn, 'border-transparent text-neutral-text/55 hover:border-accent-light/60 hover:bg-accent-light/10 hover:text-accent focus-visible:ring-accent-light/40']"
+                                    @click="remove(training)"
+                                >
+                                    Remove
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
@@ -121,29 +180,38 @@ const input =
         </div>
 
         <AdminModal :show="showModal" :title="editing ? 'Edit training' : 'Add training'" @close="close">
-            <form class="space-y-4" @submit.prevent="submit">
+            <form class="space-y-5" @submit.prevent="submit">
                 <ImageField :form="form" :current-url="editing?.image_url ?? null" />
 
                 <div>
-                    <label class="mb-1 block text-sm font-medium">Title</label>
-                    <input v-model="form.title" type="text" :class="input" />
-                    <p v-if="form.errors.title" class="mt-1 text-xs text-red-600">{{ form.errors.title }}</p>
+                    <label for="tr-title" class="mb-1.5 block text-sm font-medium text-neutral-text">Title</label>
+                    <input id="tr-title" v-model="form.title" type="text" :class="inputClass(form.errors.title)" />
+                    <p v-if="form.errors.title" class="mt-1.5 text-xs font-medium text-accent">{{ form.errors.title }}</p>
                 </div>
 
                 <div>
-                    <label class="mb-1 block text-sm font-medium">Description</label>
-                    <textarea v-model="form.description" rows="6" :class="input" />
-                    <p v-if="form.errors.description" class="mt-1 text-xs text-red-600">{{ form.errors.description }}</p>
+                    <label for="tr-desc" class="mb-1.5 block text-sm font-medium text-neutral-text">Description</label>
+                    <textarea
+                        id="tr-desc"
+                        v-model="form.description"
+                        rows="6"
+                        :class="[inputClass(form.errors.description), 'leading-relaxed']"
+                    />
+                    <p v-if="form.errors.description" class="mt-1.5 text-xs font-medium text-accent">{{ form.errors.description }}</p>
                 </div>
 
-                <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" class="rounded-md px-4 py-2 text-sm text-gray-600 hover:bg-gray-100" @click="close">
+                <div class="-mx-5 -mb-5 flex justify-end gap-3 border-t border-neutral-text/10 bg-neutral-bg px-5 py-4">
+                    <button
+                        type="button"
+                        class="rounded-lg border border-neutral-text/15 bg-white px-4 py-2 text-sm font-medium text-neutral-text transition hover:bg-neutral-text/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        @click="close"
+                    >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="rounded-md bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                        class="rounded-lg bg-primary px-5 py-2 text-sm font-medium text-white transition hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {{ form.processing ? 'Saving...' : editing ? 'Save changes' : 'Add training' }}
                     </button>

@@ -44,36 +44,49 @@ onBeforeUnmount(revoke)
 
 <template>
     <div>
-        <label class="mb-1 block text-sm font-medium">{{ label }}</label>
+        <label class="mb-1.5 block text-sm font-medium text-neutral-text">{{ label }}</label>
 
-        <div class="flex items-center gap-4">
-            <div class="h-24 w-24 shrink-0 overflow-hidden rounded-md border border-gray-200 bg-gray-100">
+        <div class="flex items-center gap-4 rounded-xl border border-neutral-text/10 bg-neutral-bg p-3">
+            <div
+                class="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-white"
+                :class="shown ? 'border border-neutral-text/10' : 'border border-dashed border-neutral-text/25'"
+            >
                 <img v-if="shown" :src="shown" alt="" class="h-full w-full object-cover" />
-                <div v-else class="flex h-full w-full items-center justify-center text-xs text-gray-400">
-                    No image
+                <div v-else class="flex h-full w-full flex-col items-center justify-center gap-1 text-neutral-text/40">
+                    <svg class="h-6 w-6" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="4" width="14" height="12" rx="2" /><circle cx="7.5" cy="8.5" r="1.25" /><path d="m17 13-4-4-7 7" />
+                    </svg>
+                    <span class="text-xs">No image</span>
                 </div>
             </div>
 
-            <div class="space-y-2 text-sm">
-                <label
-                    class="inline-flex cursor-pointer items-center rounded-md border border-gray-300 px-3 py-1.5 font-medium text-gray-700 hover:bg-gray-50"
-                >
-                    {{ shown ? 'Change image' : 'Choose image' }}
-                    <input
-                        ref="fileInput"
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        class="sr-only"
-                        @change="onPick"
-                    />
-                </label>
-                <button v-if="shown" type="button" class="ml-3 text-red-600 hover:underline" @click="clear">
-                    Remove
-                </button>
-                <p class="text-xs text-gray-400">JPG, PNG or WebP, up to 5 MB.</p>
+            <div class="min-w-0 text-sm">
+                <div class="flex flex-wrap items-center gap-2">
+                    <label
+                        class="inline-flex cursor-pointer items-center rounded-lg border border-primary/40 bg-white px-3 py-1.5 text-sm font-medium text-primary-dark transition focus-within:ring-2 focus-within:ring-primary/40 hover:bg-primary-light active:scale-[0.98]"
+                    >
+                        {{ shown ? 'Change image' : 'Choose image' }}
+                        <input
+                            ref="fileInput"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            class="sr-only"
+                            @change="onPick"
+                        />
+                    </label>
+                    <button
+                        v-if="shown"
+                        type="button"
+                        class="rounded-lg px-3 py-1.5 text-sm font-medium text-neutral-text/55 transition hover:bg-accent-light/10 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-light/40"
+                        @click="clear"
+                    >
+                        Remove
+                    </button>
+                </div>
+                <p class="mt-2 text-xs text-neutral-text/50">JPG, PNG or WebP, up to 5 MB.</p>
             </div>
         </div>
 
-        <p v-if="form.errors.image" class="mt-1 text-xs text-red-600">{{ form.errors.image }}</p>
+        <p v-if="form.errors.image" class="mt-1.5 text-xs font-medium text-accent">{{ form.errors.image }}</p>
     </div>
 </template>

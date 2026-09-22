@@ -6,11 +6,23 @@
  * in a row and the "Chat with us" link sits pinned to the bottom via
  * mt-auto, so a short description doesn't leave the link floating mid-card.
  */
+import { usePage } from '@inertiajs/vue3'
 import SectionHeading from './SectionHeading.vue'
 
-defineProps({
+const props = defineProps({
     services: { type: Array, default: () => [] },
 })
+
+const page = usePage()
+
+// Same approach as the full Services page: build the wa.me link on the
+// client from the shared pharmacy number, rather than relying on the
+// backend to precompute and pass a whatsapp_url per service.
+const whatsappHref = (service) => {
+    const number = page.props.pharmacyWhatsapp
+    const message = service.whatsapp_message ?? `Hi, I would like to know more about ${service.name}.`
+    return `https://wa.me/${number}?text=${encodeURIComponent(message)}`
+}
 
 const icons = {
     consultation: 'M8 10h8M8 14h5M21 12a9 9 0 1 1-4.06-7.5L21 3l-.94 4.06A8.96 8.96 0 0 1 21 12z',
@@ -81,7 +93,7 @@ const iconFor = (service) => icons[service.icon] ?? icons.default
                     </p>
                     <div class="mt-4 border-t border-neutral-text/10 pt-4">
 
-                        <a :href="service.whatsapp_url"
+                        <a :href="whatsappHref(service)"
                            target="_blank"
                            rel="noopener"
                            class="inline-flex items-center gap-1.5 rounded-md bg-primary-dark px-3.5 py-2 text-[0.8rem] font-medium text-white shadow-sm shadow-whatsapp/25 transition-all duration-200 hover:bg-primary hover:shadow-md hover:shadow-whatsapp/30"

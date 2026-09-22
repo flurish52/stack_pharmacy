@@ -27,8 +27,7 @@ defineProps({
         <HeroSection
             :shop-href="route('shop.index')"
             :whatsapp-href="`https://wa.me/${$page.props.pharmacyWhatsapp}`"
-            hero-image-src="/storage/assets/hero-delivery3.png"
-            background-image-src="/storage/assets/hero-delivery.png"
+            background-image-src="/storage/assets/stack_pharmacy.png"
         />
 
         <TrustStrip class="relative z-10 -mt-10 md:-mt-14" />

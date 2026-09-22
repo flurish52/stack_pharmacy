@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
 use App\Models\ProductVariant;
 use App\Support\CartSession;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class CartController extends Controller
@@ -25,15 +23,19 @@ class CartController extends Controller
             'quantity'   => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
-        $variant = ProductVariant::findOrFail($validated['variant_id']);
+        $variant = ProductVariant::with('product')->findOrFail($validated['variant_id']);
 
-        $requested = ($this->cart->all()[$variant->id] ?? 0) + $validated['quantity'];
+        $requested = ($this->cart->all()[$variant->id]['quantity'] ?? 0) + $validated['quantity'];
 
         if ($requested > $variant->stock_quantity) {
             return back()->with('error', "Only {$variant->stock_quantity} left in stock.");
         }
 
-        $this->cart->add($variant->id, $validated['quantity']);
+        $this->cart->add($variant->id, $validated['quantity'], [
+            'name'  => $variant->product->name,
+            'image' => $variant->image_url ?? $variant->product->image_url,
+            'price' => $variant->price,
+        ]);
 
         return back()->with('success', 'Added to cart.');
     }

@@ -45,7 +45,7 @@ class UpdateProductRequest extends FormRequest
             $id = is_array($variant) ? ($variant['id'] ?? null) : null;
 
             $rules["variants.$i.sku"] = [
-                'required', 'string', 'max:100', 'distinct',
+                'nullable', 'string', 'max:100', 'distinct',
                 Rule::unique('product_variants', 'sku')->ignore($id),
             ];
 

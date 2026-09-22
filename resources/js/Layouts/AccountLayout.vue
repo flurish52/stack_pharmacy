@@ -8,6 +8,9 @@ const tabs = [
     // { label: 'Profile', route: 'account.profile.edit', icon: 'M20 21a8 8 0 0 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z' },
 ]
 
+// Feather/lucide-style "log-out" glyph, matches the stroke weight of the tab icons
+const logoutIcon = 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9'
+
 const isActive = (name) => {
     try {
         return route().current(name) || route().current(`${name.split('.').slice(0, -1).join('.')}.*`)
@@ -30,10 +33,10 @@ const isActive = (name) => {
                     v-for="tab in tabs"
                     :key="tab.route"
                     :href="route(tab.route)"
-                    class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                    class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md border-l-2 py-2 pl-2.5 pr-3 text-sm font-medium transition-colors duration-200"
                     :class="isActive(tab.route)
-                        ? 'bg-primary-light text-primary-dark'
-                        : 'text-neutral-text/65 hover:bg-neutral-bg'"
+                        ? 'border-primary-dark bg-primary-light text-primary-dark'
+                        : 'border-transparent text-neutral-text/65 hover:border-neutral-text/10 hover:bg-neutral-bg'"
                 >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true">
                         <path :d="tab.icon" />
@@ -41,12 +44,18 @@ const isActive = (name) => {
                     {{ tab.label }}
                 </Link>
 
+                <!-- Divider separates account nav from the sign-out action -->
+                <div class="my-3 border-t border-neutral-text/10" />
+
                 <Link
                     href="/logout"
                     method="post"
                     as="button"
-                    class="text-red-500 font-medium py-2 px-4 rounded transition duration-150 ease-in-out"
+                    class="flex w-full items-center gap-2.5 whitespace-nowrap rounded-md border-l-2 border-transparent py-2 pl-2.5 pr-3 text-sm font-medium text-accent transition-colors duration-200 hover:bg-accent-light/10"
                 >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true">
+                        <path :d="logoutIcon" />
+                    </svg>
                     Logout
                 </Link>
             </nav>
@@ -64,26 +73,33 @@ const isActive = (name) => {
                 v-for="tab in tabs"
                 :key="tab.route"
                 :href="route(tab.route)"
-                class="flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors"
-                :class="isActive(tab.route) ? 'text-primary-dark' : 'text-neutral-text/50'"
+                class="flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium text-neutral-text/50 transition-colors duration-200"
+                :class="isActive(tab.route) && 'text-primary-dark'"
             >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true">
-                    <path :d="tab.icon" />
-                </svg>
+                <span
+                    class="flex h-7 w-7 items-center justify-center rounded-lg transition-colors duration-200"
+                    :class="isActive(tab.route) ? 'bg-primary-light' : ''"
+                >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true">
+                        <path :d="tab.icon" />
+                    </svg>
+                </span>
                 {{ tab.label }}
             </Link>
-        <Link
-            href="/logout"
-            method="post"
-            as="button"
-            class="text-red-500 font-medium py-2 px-4 rounded transition duration-150 ease-in-out"
-        >
-            Logout
-        </Link>
+
+            <Link
+                href="/logout"
+                method="post"
+                as="button"
+                class="flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium text-accent transition-colors duration-200"
+            >
+                <span class="flex h-7 w-7 items-center justify-center rounded-lg">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="shrink-0" aria-hidden="true">
+                        <path :d="logoutIcon" />
+                    </svg>
+                </span>
+                Logout
+            </Link>
         </nav>
-
-
-
-
     </div>
 </template>

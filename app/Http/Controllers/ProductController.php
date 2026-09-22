@@ -7,9 +7,11 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -170,6 +172,12 @@ class ProductController extends Controller
         foreach ($rows as $row) {
             $data = Arr::only($row, ['variant_name', 'sku', 'price', 'stock_quantity']);
 
+            // Don't rely on the frontend to always send one — a blank/missing
+            // SKU gets a real one here, so the row is never saved without one.
+            if (empty($data['sku'])) {
+                $data['sku'] = $this->generateSku($product, $row['variant_name'] ?? null);
+            }
+
             $variant = ! empty($row['id'])
                 ? tap($product->variants()->findOrFail($row['id']))->update($data)
                 : $product->variants()->create($data);
@@ -183,5 +191,19 @@ class ProductController extends Controller
             $variant->update(['sku' => $variant->sku.'-removed-'.$variant->id]);
             $variant->delete();
         });
+    }
+
+    /**
+     * STK-XXXXXXXX, checked against SKUs including soft-deleted variants —
+     * the UNIQUE constraint doesn't care that a row is trashed, so a
+     * collision there would still fail the insert.
+     */
+    private function generateSku(Product $product, ?string $variantName = null): string
+    {
+        do {
+            $sku = 'STK-'.strtoupper(Str::random(8));
+        } while (ProductVariant::withTrashed()->where('sku', $sku)->exists());
+
+        return $sku;
     }
 }

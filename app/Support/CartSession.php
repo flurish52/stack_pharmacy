@@ -27,17 +27,49 @@ class CartSession
         $this->summary = null;
     }
 
+    /**
+     * Clamped to the variant's current stock — this is the one place cart
+     * quantities are ever written to, so enforcing it here means no caller
+     * (controller, future endpoint, artisan command, whatever) can push a
+     * quantity past what's actually available, even if it forgets to check.
+     * An unknown/deleted variant is a no-op rather than adding a phantom line.
+     */
     public function add(int $variantId, int $quantity = 1): void
     {
+        if ($quantity < 1) {
+            return;
+        }
+
+        $stock = ProductVariant::whereKey($variantId)->value('stock_quantity');
+
+        if ($stock === null) {
+            return;
+        }
+
         $cart = $this->all();
-        $cart[$variantId] = ($cart[$variantId] ?? 0) + $quantity;
+        $current = $cart[$variantId] ?? 0;
+        $cart[$variantId] = min($current + $quantity, $stock);
         $this->put($cart);
     }
 
+    /**
+     * Same clamp as add(), since this is the other write path. A quantity
+     * of 0 (or below) removes the line entirely rather than leaving a
+     * zero-quantity entry sitting in the cart.
+     */
     public function set(int $variantId, int $quantity): void
     {
         $cart = $this->all();
-        $cart[$variantId] = $quantity;
+
+        $stock = ProductVariant::whereKey($variantId)->value('stock_quantity');
+
+        if ($stock === null || $quantity <= 0) {
+            unset($cart[$variantId]);
+            $this->put($cart);
+            return;
+        }
+
+        $cart[$variantId] = min($quantity, $stock);
         $this->put($cart);
     }
 
@@ -99,20 +131,27 @@ class CartSession
             return ['items' => [], 'total' => 0];
         }
 
-        $variants = ProductVariant::with(['product', 'images'])
+        $variants = ProductVariant::with(['product.images', 'images'])
             ->whereIn('id', array_keys($cart))
             ->get();
 
-        $items = $variants->map(fn ($variant) => [
-            'variant_id' => $variant->id,
-            'product_name' => $variant->product->name,
-            'variant_name' => $variant->variant_name,
-            'price' => $variant->price,
-            'quantity' => $cart[$variant->id],
-            'stock_quantity' => $variant->stock_quantity,
-            'subtotal' => $variant->price * $cart[$variant->id],
-            'image_url' => $variant->images->first()?->url,
-        ])->values();
+        $items = $variants->map(function ($variant) use ($cart) {
+            $image = $variant->images->firstWhere('is_primary', true)
+                ?? $variant->images->first()
+                ?? $variant->product->images->firstWhere('is_primary', true)
+                ?? $variant->product->images->first();
+
+            return [
+                'variant_id' => $variant->id,
+                'product_name' => $variant->product->name,
+                'variant_name' => $variant->variant_name,
+                'price' => $variant->price,
+                'quantity' => $cart[$variant->id],
+                'stock_quantity' => $variant->stock_quantity,
+                'subtotal' => $variant->price * $cart[$variant->id],
+                'image_url' => $image?->url,
+            ];
+        })->values();
 
         return [
             'items' => $items,

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
+import { Link } from '@inertiajs/vue3'
 
 const props = defineProps({
     form: { type: Object, required: true }, // an Inertia useForm() object
@@ -88,7 +89,7 @@ const input =
             <p class="mb-4 text-sm text-gray-500">
                 Pick at least one. The primary category is used for breadcrumbs.
             </p>
-            <div class="grid gap-2 sm:grid-cols-2">
+            <div v-if="categories.length" class="grid gap-2 sm:grid-cols-2">
                 <div
                     v-for="category in categories"
                     :key="category.id"
@@ -114,6 +115,16 @@ const input =
                         Primary
                     </label>
                 </div>
+            </div>
+            <div v-else class="rounded-md border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center">
+                <p class="text-sm font-medium text-gray-700">No categories yet</p>
+                <p class="mt-1 text-xs text-gray-500">You need at least one category before you can add a product.</p>
+                <Link
+                    href="/admin/categories"
+                    class="mt-3 inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3.5 py-2 text-xs font-medium text-white hover:bg-emerald-700"
+                >
+                    Create a category
+                </Link>
             </div>
             <p v-if="err('category_ids')" class="mt-2 text-xs text-red-600">{{ err('category_ids') }}</p>
             <p v-if="err('primary_category_id')" class="mt-2 text-xs text-red-600">{{ err('primary_category_id') }}</p>
@@ -149,7 +160,8 @@ const input =
                         </div>
                         <div>
                             <label class="mb-1 block text-xs font-medium text-gray-600">SKU</label>
-                            <input v-model="variant.sku" type="text" :class="input" />
+                            <input v-model="variant.sku" type="text" placeholder="Leave blank to auto-generate" :class="input" />
+                            <p class="mt-1 text-xs text-gray-400">Optional — generated automatically if left blank.</p>
                             <p v-if="err(`variants.${index}.sku`)" class="mt-1 text-xs text-red-600">
                                 {{ err(`variants.${index}.sku`) }}
                             </p>
@@ -181,11 +193,12 @@ const input =
             </div>
         </section>
 
-        <div class="flex justify-end gap-3">
+        <div class="flex items-center justify-end gap-3">
+            <p v-if="!categories.length" class="text-xs text-gray-500">Add a category above before saving.</p>
             <slot name="cancel" />
             <button
                 type="submit"
-                :disabled="form.processing"
+                :disabled="form.processing || !categories.length"
                 class="rounded-md bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
             >
                 {{ form.processing ? 'Saving...' : submitLabel }}

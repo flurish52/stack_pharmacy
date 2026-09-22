@@ -51,6 +51,8 @@ createInertiaApp({
                     return ShopLayout
                 case name.startsWith('Dashboard'):
                     return AccountLayout
+                case name.startsWith('Account/'):
+                    return AccountLayout
                 default:
                     return ShopLayout
             }

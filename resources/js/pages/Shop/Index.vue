@@ -47,34 +47,66 @@ watch(search, (value) => {
         })
     }, 400)
 })
+
+/* Active filter chips: show what is applied and let people drop it in one click */
+const hasActiveFilters = computed(() => Boolean(props.filters.category || props.filters.search))
+
+function clearCategory() {
+    router.get(route('shop.index'), { ...props.filters, category: undefined, page: undefined }, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+    })
+}
+
+function clearSearch() {
+    // The search watcher above issues the request
+    search.value = ''
+}
 </script>
 
 <template>
-    <div class="mx-auto max-w-7xl px-6 py-10">
-        <nav class="flex items-center gap-1.5 text-xs text-neutral-text/45" aria-label="Breadcrumb">
-            <Link :href="route('shop.index')" class="hover:text-primary-dark">shop</Link>
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-10">
+        <!-- Breadcrumb + page heading -->
+        <nav class="flex items-center gap-1.5 text-xs text-neutral-text/55" aria-label="Breadcrumb">
+            <Link :href="route('pharm.home')" class="transition-colors hover:text-primary-dark">Home</Link>
+            <span aria-hidden="true">›</span>
+            <Link
+                v-if="activeCategory"
+                :href="route('shop.index')"
+                class="transition-colors hover:text-primary-dark"
+            >
+                Shop
+            </Link>
+            <span v-else class="text-neutral-text/80" aria-current="page">Shop</span>
             <template v-if="activeCategory">
-                <span>›</span>
-                <span class="text-neutral-text/70">{{ activeCategory.name }}</span>
+                <span aria-hidden="true">›</span>
+                <span class="text-neutral-text/80" aria-current="page">{{ activeCategory.name }}</span>
             </template>
         </nav>
 
-        <div class="mt-8 flex flex-col gap-10 lg:flex-row lg:items-start">
+        <h1 class="mt-3 font-heading text-2xl font-semibold tracking-tight text-neutral-text sm:text-3xl">
+            {{ activeCategory?.name ?? 'Shop' }}
+        </h1>
+
+        <div class="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
             <ShopFilters :categories="categories" :filters="filters" />
 
             <div class="min-w-0 flex-1">
+                <!-- Toolbar -->
                 <div class="flex flex-col gap-3 border-b border-neutral-text/10 pb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                     <p class="shrink-0 text-sm text-neutral-text/60">
-                        {{ products.total }} product{{ products.total === 1 ? '' : 's' }}
+                        <span class="font-medium text-neutral-text">{{ products.total }}</span>
+                        product{{ products.total === 1 ? '' : 's' }}
                     </p>
 
                     <ShopSearch v-model="search" />
 
-                    <label class="flex shrink-0 items-center gap-2 text-xs text-neutral-text/50">
+                    <label class="flex shrink-0 items-center gap-2 text-xs text-neutral-text/60">
                         Sort by
                         <select
                             v-model="sort"
-                            class="rounded-md border border-neutral-text/15 bg-white py-1 pl-2 pr-6 text-xs text-neutral-text focus:border-primary-dark focus:outline-none focus:ring-1 focus:ring-primary-dark/30"
+                            class="rounded-md border border-neutral-text/15 bg-neutral-bg py-1.5 pl-2.5 pr-7 text-xs text-neutral-text transition-colors hover:border-primary-dark/40 focus:border-primary-dark focus:outline-none focus:ring-1 focus:ring-primary-dark/30"
                         >
                             <option v-for="option in sortOptions" :key="option.value" :value="option.value">
                                 {{ option.label }}
@@ -83,6 +115,45 @@ watch(search, (value) => {
                     </label>
                 </div>
 
+                <!-- Applied filters -->
+                <div v-if="hasActiveFilters" class="mt-4 flex flex-wrap items-center gap-2">
+                    <span class="text-xs text-neutral-text/55">Showing:</span>
+
+                    <button
+                        v-if="activeCategory"
+                        type="button"
+                        class="group inline-flex items-center gap-1.5 rounded-md bg-primary-light px-2.5 py-1 text-xs font-medium text-primary-dark transition-colors hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        @click="clearCategory"
+                    >
+                        {{ activeCategory.name }}
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                            <path d="M18 6 6 18M6 6l12 12" />
+                        </svg>
+                        <span class="sr-only">Remove category filter</span>
+                    </button>
+
+                    <button
+                        v-if="filters.search"
+                        type="button"
+                        class="group inline-flex items-center gap-1.5 rounded-md bg-primary-light px-2.5 py-1 text-xs font-medium text-primary-dark transition-colors hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        @click="clearSearch"
+                    >
+                        "{{ filters.search }}"
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                            <path d="M18 6 6 18M6 6l12 12" />
+                        </svg>
+                        <span class="sr-only">Remove search</span>
+                    </button>
+
+                    <Link
+                        :href="route('shop.index')"
+                        class="ml-1 text-xs font-medium text-primary-dark underline-offset-4 hover:underline"
+                    >
+                        Clear all
+                    </Link>
+                </div>
+
+                <!-- Grid -->
                 <div v-if="products.data.length" class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                     <ProductCard
                         v-for="product in products.data"
@@ -91,19 +162,22 @@ watch(search, (value) => {
                     />
                 </div>
 
-                <div v-else class="mt-6 rounded-md border border-dashed border-neutral-text/20 px-6 py-14 text-center">
-                    <p class="text-sm text-neutral-text/70">
+                <!-- Empty state -->
+                <div v-else class="mt-6 rounded-md border border-dashed border-primary-dark/25 bg-primary-light/50 px-6 py-14 text-center">
+                    <p class="text-sm text-neutral-text/75">
                         {{ search ? `Nothing matches "${search}".` : 'Nothing matches those filters yet.' }}
                     </p>
                     <Link
                         :href="route('shop.index')"
-                        class="mt-4 inline-block text-sm font-medium text-primary-dark underline-offset-4 hover:underline"
+                        class="mt-4 inline-flex items-center gap-1.5 rounded-md bg-primary-dark px-4 py-2 text-sm font-medium text-neutral-bg transition-colors duration-200 hover:bg-primary-dark/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-bg"
                     >
                         Clear filters and browse everything
                     </Link>
                 </div>
 
-                <Pagination :links="products.links" />
+                <div class="mt-8 border-t border-neutral-text/10 pt-6">
+                    <Pagination :links="products.links" />
+                </div>
             </div>
         </div>
     </div>
