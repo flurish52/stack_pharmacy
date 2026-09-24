@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AboutPageController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\TeamMemberController;
 use App\Http\Controllers\TrackOrderController;
 use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\WelcomeController;
@@ -29,14 +31,6 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/mail-preview/{status}', function (string $status) {
-    return new \App\Mail\OrderStatusUpdated(
-        \App\Models\Order::with('pickupPoint')->latest()->firstOrFail(),
-        $status
-    );
-});
-
-
 Route::get('/track', [TrackOrderController::class, 'index'])
     ->middleware('throttle:20,1')
     ->name('track.index');
@@ -45,6 +39,7 @@ Route::post('/track/{reference}/claim', [TrackOrderController::class, 'claim'])
     ->middleware(['auth', 'throttle:10,1'])
     ->name('track.claim');
 
+Route::get('/about-us', [AboutPageController::class, 'show'])->name('about-us');
 
 Route::get('/', [WelcomeController::class, 'index'])->name('pharm.home');
 
@@ -164,7 +159,10 @@ Route::middleware('auth')
         Route::middleware('can:manage-products')->group(function () {
             Route::resource('products', ProductController::class)->except(['show']);
             Route::post('products/{product}/images', [ProductImageController::class, 'store'])->name('products.images.store');
+            Route::post('products/{product}', [ProductImageController::class, 'update'])->name('products.images.store');
             Route::delete('product-images/{image}', [ProductImageController::class, 'destroy'])->name('product-images.destroy');
+            Route::patch('product-images/{image}/primary', [ProductImageController::class, 'setPrimary'])->name('product-images.destroy');
+
         });
 
         // Categories
@@ -208,6 +206,15 @@ Route::middleware('auth')
             Route::patch('/{user}', [StaffController::class, 'update'])->name('update');
             Route::post('/{user}/invite', [StaffController::class, 'resendInvite'])->name('invite');
             Route::delete('/{user}', [StaffController::class, 'revoke'])->name('revoke');
+        });
+
+        Route::middleware('can:manage-about')->prefix('about')->name('about.')->group(function () {
+            Route::get('/', [AboutPageController::class, 'adminIndex'])->name('index');
+            Route::put('/', [AboutPageController::class, 'update'])->name('update');
+
+            Route::post('/team', [TeamMemberController::class, 'store'])->name('team.store');
+            Route::patch('/team/{teamMember}', [TeamMemberController::class, 'update'])->name('team.update');
+            Route::delete('/team/{teamMember}', [TeamMemberController::class, 'destroy'])->name('team.destroy');
         });
 
         Route::get('activity-log', [ActivityLogController::class, 'index'])

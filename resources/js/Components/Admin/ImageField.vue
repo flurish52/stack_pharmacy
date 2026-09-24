@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, ref } from 'vue'
+import { compressImage } from '@/composables/useImageCompression'
 
 /**
  * Works with an Inertia useForm() that has:  image: null, remove_image: false
@@ -9,10 +10,14 @@ const props = defineProps({
     form: { type: Object, required: true },
     currentUrl: { type: String, default: null },
     label: { type: String, default: 'Image' },
+    fileKey: { type: String, default: 'image' },
+    removeKey: { type: String, default: 'remove_image' },
 })
 
 const preview = ref(null)
 const fileInput = ref(null)
+const compressing = ref(false)
+
 
 const shown = computed(() => preview.value ?? (props.form.remove_image ? null : props.currentUrl))
 
@@ -21,14 +26,18 @@ const revoke = () => {
     preview.value = null
 }
 
-const onPick = (event) => {
+const onPick = async (event) => {
     const file = event.target.files[0]
     if (!file) return
 
+    compressing.value = true
+    const compressed = await compressImage(file, { maxSizeMB: 1 })
+    compressing.value = false
+
     revoke()
-    props.form.image = file
+    props.form.image = compressed
     props.form.remove_image = false
-    preview.value = URL.createObjectURL(file)
+    preview.value = URL.createObjectURL(compressed)
 }
 
 const clear = () => {
@@ -64,13 +73,15 @@ onBeforeUnmount(revoke)
                 <div class="flex flex-wrap items-center gap-2">
                     <label
                         class="inline-flex cursor-pointer items-center rounded-lg border border-primary/40 bg-white px-3 py-1.5 text-sm font-medium text-primary-dark transition focus-within:ring-2 focus-within:ring-primary/40 hover:bg-primary-light active:scale-[0.98]"
+                        :class="{ 'pointer-events-none opacity-50': compressing }"
                     >
-                        {{ shown ? 'Change image' : 'Choose image' }}
+                        {{ compressing ? 'Compressing...' : shown ? 'Change image' : 'Choose image' }}
                         <input
                             ref="fileInput"
                             type="file"
                             accept="image/jpeg,image/png,image/webp"
                             class="sr-only"
+                            :disabled="compressing"
                             @change="onPick"
                         />
                     </label>

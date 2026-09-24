@@ -19,11 +19,11 @@ export default defineConfig({
     ],
 
     server: {
-        host: '0.0.0.0',
+        host: '0.0.0.0', // still binds to all interfaces, fine for Laragon
         port: 5173,
         cors: true,
         hmr: {
-            host: '172.22.102.222',
+            host: 'localhost', // <- was the hardcoded IP; now stable regardless of network
         },
     },
 });

@@ -65,7 +65,7 @@ const submit = () =>
             <div class="space-y-6">
                 <ProductImages :product="product" />
 
-                <ProductForm :form="form" :categories="categories" submit-label="Save changes">
+                <ProductForm :form="form" :categories="categories" @submit="submit" submit-label="Save changes">
                     <template #cancel>
                         <Link
                             href="/admin/products"

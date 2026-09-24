@@ -74,15 +74,6 @@ const ghostBtn =
     <AdminLayout title="Training">
         <template #actions>
             <div class="flex items-center gap-2">
-                <Link
-                    href="/training"
-                    class="group inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-white px-3.5 py-2 text-sm font-medium text-primary-dark transition hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-[0.98]"
-                >
-                    View public page
-                    <svg class="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M4 10h11M11 5l5 5-5 5" />
-                    </svg>
-                </Link>
                 <button
                     type="button"
                     class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 active:scale-[0.98]"

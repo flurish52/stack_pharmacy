@@ -49,6 +49,7 @@ class WelcomeController extends Controller
                 }),
 
             'training' => Training::first(),
+            'aboutPage' => \App\Models\AboutPage::current()
         ]);
     }
 }

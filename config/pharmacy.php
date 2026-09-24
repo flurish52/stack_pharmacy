@@ -1,7 +1,7 @@
 <?php
 return [
 
-    'low_stock_threshold' => env('LOW_STOCK_THRESHOLD', 10),
+    'low_stock_threshold' => env('LOW_STOCK_THRESHOLD', 5),
 
 
     'vapid' => [

@@ -11,12 +11,14 @@ import CategoryStrip from '@/Components/Welcome/CategoryStrip.vue'
 import FeaturedProducts from '@/Components/Welcome/FeaturedProducts.vue'
 import TrainingTeaser from '@/Components/Welcome/TrainingTeaser.vue'
 import WhatsappBanner from '@/Components/Welcome/WhatsappBanner.vue'
+import AboutTeaser from '@/Components/Welcome/AboutTeaser.vue'
 
 defineProps({
     services: { type: Array, default: () => [] },
     categories: { type: Array, default: () => [] },
     featuredProducts: { type: Array, default: () => [] },
     training: { type: Object, default: null },
+    aboutPage: { type: Object, required: true },
 })
 </script>
 
@@ -31,6 +33,8 @@ defineProps({
         />
 
         <TrustStrip class="relative z-10 -mt-10 md:-mt-14" />
+
+        <AboutTeaser :about="aboutPage" />
 
         <ServicesSection :services="services" />
 

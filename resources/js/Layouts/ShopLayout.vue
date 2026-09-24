@@ -11,11 +11,12 @@ const mobileMenuOpen = ref(false)
 const scrolled = ref(false)
 
 const navLinks = [
-    {label: 'Home', route: 'pharm.home'},
-    {label: 'Shop', route: 'shop.index'},
-    {label: 'Services', route: 'services.index'},
-    {label: 'Training', route: 'training.index'},
-    {label: 'Contact us', route: 'contact.index'},
+    { label: 'Home', route: 'pharm.home' },
+    { label: 'Shop', route: 'shop.index' },
+    { label: 'About Us', route: 'about-us' },
+    { label: 'Services', route: 'services.index' },
+    { label: 'Training', route: 'training.index' },
+    { label: 'Contact us', route: 'contact.index' },
 ]
 
 /* --- Auth --- */

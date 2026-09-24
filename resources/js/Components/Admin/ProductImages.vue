@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
+import { compressImage } from '@/composables/useImageCompression'
 
 const props = defineProps({
     product: { type: Object, required: true }, // needs id, images, variants
@@ -28,10 +29,11 @@ const upload = async (event) => {
 
     uploading.value = true
     for (const file of files) {
+        const compressed = await compressImage(file, { maxSizeMB: 1 })
         await new Promise((resolve) =>
             router.post(
                 `/admin/products/${props.product.id}/images`,
-                { image: file, product_variant_id: variantId.value || null },
+                { image: compressed, product_variant_id: variantId.value || null },
                 { forceFormData: true, preserveScroll: true, onFinish: resolve },
             ),
         )

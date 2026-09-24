@@ -22,14 +22,17 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
         <Head title="Forgot Password" />
 
+
+    <div class="mb-7">
+        <h1 class="font-heading text-xl font-semibold tracking-tight text-neutral-text sm:text-2xl">Welcome back!</h1>
         <div class="mb-4 text-sm text-gray-600">
             Forgot your password? No problem. Just let us know your email
             address and we will email you a password reset link that will allow
             you to choose a new one.
         </div>
+    </div>
 
         <div
             v-if="status"
@@ -38,7 +41,8 @@ const submit = () => {
             {{ status }}
         </div>
 
-        <form @submit.prevent="submit">
+
+    <form @submit.prevent="submit">
             <div>
                 <InputLabel for="email" value="Email" />
 
@@ -64,5 +68,4 @@ const submit = () => {
                 </PrimaryButton>
             </div>
         </form>
-    </GuestLayout>
 </template>

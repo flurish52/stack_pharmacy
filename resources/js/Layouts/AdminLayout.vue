@@ -50,7 +50,6 @@ const roles = computed(() => page.props.auth.roles ?? [])
 const can = (permission) => !permission || permissions.value.includes(permission)
 const hasRole = (role) => roles.value.includes(role)
 
-// Small inline icon set — no external icon dependency, one visual language throughout.
 const ICONS = {
     grid: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
     list: '<rect x="3.5" y="4.5" width="17" height="3.6" rx="1"/><rect x="3.5" y="10.2" width="17" height="3.6" rx="1"/><rect x="3.5" y="15.9" width="11" height="3.6" rx="1"/>',
@@ -131,6 +130,14 @@ const sections = [
                 permission: 'manage-training',
                 ready: true,
                 icon: 'cap'
+            },
+            {
+                name: 'About Us',
+                href: '/admin/about',
+                match: '/admin/about',
+                permission: 'manage-about',
+                ready: true,
+                icon: 'users'
             },
             {
                 name: 'Contact Channels',
