@@ -13,3 +13,5 @@ Schedule::command('stock:check-low')->daily();
 Schedule::command('queue:work --stop-when-empty')->everyMinute();
 
 Schedule::command('activitylog:clean')->daily();
+
+Schedule::command('sitemap:generate')->daily();

@@ -1,6 +1,6 @@
 <script setup>
 const items = [
-    { icon: 'truck', label: 'Fast delivery on every, zero delays' },
+    { icon: 'truck', label: 'Fast delivery on every order, zero delays' },
     { icon: 'shield-check', label: '100% genuine medicines' },
     { icon: 'lock', label: 'Secure & safe payments' },
     { icon: 'headset', label: '24/7 support' },
@@ -17,21 +17,65 @@ const icons = {
 </script>
 
 <template>
-    <div class="bg-primary-dark">
-        <div class="mx-auto max-w-6xl overflow-x-auto px-4 sm:px-6">
-            <div class="flex w-max items-center gap-6 py-2 text-xs text-white/90 sm:w-full sm:justify-between sm:gap-8">
+    <div class="overflow-hidden bg-primary-dark">
+        <div class="marquee flex w-max items-center py-2 text-xs text-white/90">
+            <!-- Track A -->
+            <div class="flex shrink-0 items-center gap-6 sm:gap-8">
                 <div
-                    v-for="(item, index) in items"
-                    :key="item.label"
+                    v-for="item in items"
+                    :key="`a-${item.label}`"
                     class="flex shrink-0 items-center gap-1.5"
                 >
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0 text-white/70">
                         <path :d="icons[item.icon]" />
                     </svg>
                     <span class="whitespace-nowrap">{{ item.label }}</span>
-                    <span v-if="index < items.length - 1" class="ml-6 hidden h-3 w-px bg-white/20 sm:block" aria-hidden="true" />
+                    <span class="ml-6 h-3 w-px bg-white/20 sm:ml-8" aria-hidden="true" />
+                </div>
+            </div>
+
+            <!-- Track B: identical copy, butts up against Track A so the loop is seamless -->
+            <div class="flex shrink-0 items-center gap-6 pl-6 sm:gap-8 sm:pl-8" aria-hidden="true">
+                <div
+                    v-for="item in items"
+                    :key="`b-${item.label}`"
+                    class="flex shrink-0 items-center gap-1.5"
+                >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0 text-white/70">
+                        <path :d="icons[item.icon]" />
+                    </svg>
+                    <span class="whitespace-nowrap">{{ item.label }}</span>
+                    <span class="ml-6 h-3 w-px bg-white/20 sm:ml-8" aria-hidden="true" />
                 </div>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+.marquee {
+    animation: marquee-scroll 22s linear infinite;
+}
+
+.marquee:hover {
+    animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        /* Track A and Track B are identical, so shifting exactly one
+           track's width to the left lands back on the same visual
+           frame Track B started at — the loop point is invisible. */
+        transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .marquee {
+        animation: none;
+    }
+}
+</style>
