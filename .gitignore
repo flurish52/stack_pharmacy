@@ -43,3 +43,5 @@ yarn-error.log
 /opencode.jsonc
 commit-message.txt
 /public/sitemap.xml
+error_log 
+public/error_log 
