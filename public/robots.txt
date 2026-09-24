@@ -1,2 +1,9 @@
 User-agent: *
-Disallow:
+User-agent: *
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /track
+
+Sitemap: https://stackpharmacy.com.ng/sitemap.xml

@@ -24,16 +24,22 @@ class OrderPolicy
 
     public function cancel(User $user, Order $order): bool
     {
-        if (! $order->isCancellable()) {
-            return false;
+        // Staff with cancel-order: allowed until the order leaves the pharmacy.
+        if ($user->can('cancel-order')) {
+            return $order->isCancellable();
         }
 
-        return $user->can('cancel-order') || $order->user_id === $user->id;
+        // Customers: own order only, and only before processing starts.
+        return $order->user_id === $user->id && $order->isCustomerCancellable();
     }
 
     public function markReceived(User $user, Order $order): bool
     {
-        // Staff/Admin/Owner via update-order-status, OR the customer self-reporting per §3.5
+        if (! $order->isReceivable()) {
+            return false;
+        }
+
+        // Staff via update-order-status, OR the customer confirming their own order.
         return $user->can('update-order-status') || $order->user_id === $user->id;
     }
 

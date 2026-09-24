@@ -1,4 +1,3 @@
-<?php
 @component('mail::message')
     # Thanks for your order!
 
@@ -20,7 +19,7 @@
         Your order will be delivered to: {{ $order->delivery_address }}. Delivery fee is collected on arrival.
     @endif
 
-    @component('mail::button', ['url' => route('orders.show', $order)])
+    @component('mail::button', ['url' => route('account.orders.show', $order)])
         View Order
     @endcomponent
 

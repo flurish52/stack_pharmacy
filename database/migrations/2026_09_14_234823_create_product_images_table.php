@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('product_variant_id')->nullable()->constrained()->nullOnDelete();
             $table->string('cloudinary_public_id');
             $table->boolean('is_primary')->default(false);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

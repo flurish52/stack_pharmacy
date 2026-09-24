@@ -15,7 +15,7 @@ class RoleSeeder extends Seeder
             'manage-categories', 'manage-services', 'manage-training',
             'manage-contact', 'manage-pickup-points', 'view-orders',
             'update-order-status', 'cancel-order', 'view-activity-log',
-            'view-reports',
+            'view-reports', 'manage-about',
         ];
 
         foreach ($permissions as $permission) {
@@ -28,16 +28,18 @@ class RoleSeeder extends Seeder
         Role::firstOrCreate(['name' => 'owner'])->givePermissionTo([
             'manage-staff', 'manage-products', 'manage-categories', 'manage-services',
             'manage-training', 'manage-contact', 'manage-pickup-points', 'view-orders',
-            'update-order-status', 'cancel-order', 'view-activity-log', 'view-reports',
+            'update-order-status', 'cancel-order', 'view-activity-log', 'view-reports', 'manage-about',
         ]);
 
         Role::firstOrCreate(['name' => 'admin'])->givePermissionTo([
             'manage-products', 'manage-categories', 'manage-services', 'manage-training',
-            'manage-contact', 'manage-pickup-points', 'view-orders', 'update-order-status', 'cancel-order',
+            'manage-contact', 'manage-pickup-points', 'view-orders', 'update-order-status', 'cancel-order', 'manage-about',
         ]);
 
         Role::firstOrCreate(['name' => 'staff'])->givePermissionTo([
             'view-orders', 'update-order-status',
         ]);
+
+        Role::firstOrCreate(['name' => 'customer']);
     }
 }
