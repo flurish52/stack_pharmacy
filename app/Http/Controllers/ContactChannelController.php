@@ -11,7 +11,7 @@ class ContactChannelController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Contact/Index', [
+        return Inertia::render('ContactChannel/Index', [
             'channels' => ContactChannel::orderBy('display_order')->get(),
         ]);
     }

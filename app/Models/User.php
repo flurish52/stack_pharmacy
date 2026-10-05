@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -34,6 +35,15 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+
+    public const STAFF_ROLES = ['staff', 'admin', 'owner', 'super_admin'];
+
+    public function isStaffMember(): bool
+    {
+        return $this->hasAnyRole(self::STAFF_ROLES);
+    }
+
+
     protected function casts(): array
     {
         return [
@@ -41,4 +51,28 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
+
+    }
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+
+    }
+
+    public function assignableRoles(): array
+    {
+        return $this->hasRole('super_admin')
+            ? ['staff', 'admin', 'owner']
+            : ['staff', 'admin'];
+    }
+
+    public function canManageStaff(User $target): bool
+    {
+        return $this->isNot($target) && $target->hasAnyRole($this->assignableRoles());
+    }
+
 }

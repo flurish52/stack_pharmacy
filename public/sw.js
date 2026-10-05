@@ -1,37 +1,37 @@
-self.addEventListener('push', (event) => {
-    if (!event.data) return;
+// Stack Pharmacy service worker: shows push notifications for staff.
 
-    const payload = event.data.json();
+self.addEventListener('install', () => self.skipWaiting())
+
+self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()))
+
+self.addEventListener('push', (event) => {
+    let data = {}
+
+    try {
+        data = event.data ? event.data.json() : {}
+    } catch (e) {
+        data = { body: event.data ? event.data.text() : '' }
+    }
 
     event.waitUntil(
-        self.registration.showNotification(payload.title, {
-            body: payload.body,
-            icon: '/icons/icon-192.png',
-            badge: '/icons/badge-72.png',
-            tag: payload.tag || 'stack-pharmacy',
-            data: { url: payload.url || '/admin/products' },
-        })
-    );
-});
+        self.registration.showNotification(data.title || 'Stack Pharmacy', {
+            body: data.body || '',
+            data: { url: data.url || '/admin/dashboard' },
+        }),
+    )
+})
 
 self.addEventListener('notificationclick', (event) => {
-    event.notification.close();
+    event.notification.close()
 
-    const targetUrl = event.notification.data?.url || '/';
+    const target = new URL(event.notification.data?.url || '/admin/dashboard', self.location.origin).href
 
     event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-            // Focus an existing tab if the app is already open
-            for (const client of windowClients) {
-                if (client.url.includes(targetUrl) && 'focus' in client) {
-                    return client.focus();
-                }
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+            for (const client of windows) {
+                if (client.url === target && 'focus' in client) return client.focus()
             }
-
-            return clients.openWindow(targetUrl);
-        })
-    );
-});
-
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (event) => event.waitUntil(clients.claim()));
+            return self.clients.openWindow(target)
+        }),
+    )
+})

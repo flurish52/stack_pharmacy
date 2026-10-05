@@ -19,12 +19,12 @@ class CheckLowStock extends Command
 
     public function handle(PushNotificationService $push): void
     {
-        ProductVariant::where('stock_quantity', '<=', config('app.low_stock_threshold'))
+        ProductVariant::where('stock_quantity', '<=', config('pharmacy.low_stock_threshold'))
             ->where('stock_quantity', '>', 0)
             ->each(function ($variant) use ($push) {
                 $push->notifyAdmins(
                     'Low Stock Reminder',
-                    "{$variant->product->name} ({$variant->variant_name}) still has only {$variant->stock_quantity} units.",
+                    "{$variant->product->name} ({$variant->variant_name}) now has only {$variant->stock_quantity} units.",
                 );
             });
     }

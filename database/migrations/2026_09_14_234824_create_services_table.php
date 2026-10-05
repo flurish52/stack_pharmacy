@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('whatsapp_message');
             $table->boolean('is_active')->default(true);
+            $table->string('image_public_id')->nullable();
             $table->timestamps();
         });
     }

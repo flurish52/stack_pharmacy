@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -13,6 +14,9 @@ const form = useForm({
     password_confirmation: '',
 });
 
+const showPassword = ref(false);
+const showPasswordConfirmation = ref(false);
+
 const submit = () => {
     form.post(route('register'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
@@ -21,93 +25,105 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Register" />
+    <Head title="Register" />
+    <div class="mb-7">
+        <h1 class="font-heading text-xl font-semibold tracking-tight text-neutral-text sm:text-2xl">Create your account</h1>
+        <p class="mt-1.5 text-sm text-neutral-text/60">Faster checkout, order tracking, and easy reorders.</p>
+    </div>
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="name" value="Name" />
+    <form class="space-y-4" @submit.prevent="submit">
+        <div>
+            <InputLabel for="name" value="Full name" />
+            <TextInput
+                id="name"
+                type="text"
+                v-model="form.name"
+                required
+                autofocus
+                autocomplete="name"
+            />
+            <InputError class="mt-1.5" :message="form.errors.name" />
+        </div>
 
-                <TextInput
-                    id="name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.name"
-                    required
-                    autofocus
-                    autocomplete="name"
-                />
+        <div>
+            <InputLabel for="email" value="Email" />
+            <TextInput
+                id="email"
+                type="email"
+                v-model="form.email"
+                required
+                autocomplete="username"
+            />
+            <InputError class="mt-1.5" :message="form.errors.email" />
+        </div>
 
-                <InputError class="mt-2" :message="form.errors.name" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="email" value="Email" />
-
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autocomplete="username"
-                />
-
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
+        <div>
+            <InputLabel for="password" value="Password" />
+            <div class="relative">
                 <TextInput
                     id="password"
-                    type="password"
-                    class="mt-1 block w-full"
+                    :type="showPassword ? 'text' : 'password'"
                     v-model="form.password"
                     required
                     autocomplete="new-password"
+                    class="pr-10"
                 />
-
-                <InputError class="mt-2" :message="form.errors.password" />
+                <button
+                    type="button"
+                    class="absolute inset-y-0 right-0 flex items-center px-3 text-neutral-text/40 transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:text-primary-dark"
+                    :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                    @click="showPassword = !showPassword"
+                >
+                    <svg v-if="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-3.22 4.48M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                </button>
             </div>
+            <InputError class="mt-1.5" :message="form.errors.password" />
+        </div>
 
-            <div class="mt-4">
-                <InputLabel
-                    for="password_confirmation"
-                    value="Confirm Password"
-                />
-
+        <div>
+            <InputLabel for="password_confirmation" value="Confirm password" />
+            <div class="relative">
                 <TextInput
                     id="password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
+                    :type="showPasswordConfirmation ? 'text' : 'password'"
                     v-model="form.password_confirmation"
                     required
                     autocomplete="new-password"
+                    class="pr-10"
                 />
-
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
-            </div>
-
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    :href="route('login')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                <button
+                    type="button"
+                    class="absolute inset-y-0 right-0 flex items-center px-3 text-neutral-text/40 transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:text-primary-dark"
+                    :aria-label="showPasswordConfirmation ? 'Hide password' : 'Show password'"
+                    @click="showPasswordConfirmation = !showPasswordConfirmation"
                 >
-                    Already registered?
-                </Link>
-
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Register
-                </PrimaryButton>
+                    <svg v-if="!showPasswordConfirmation" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-6.06M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-3.22 4.48M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                </button>
             </div>
-        </form>
-    </GuestLayout>
+            <InputError class="mt-1.5" :message="form.errors.password_confirmation" />
+        </div>
+
+        <PrimaryButton class="w-full" :class="{ 'opacity-60': form.processing }" :disabled="form.processing">
+            {{ form.processing ? 'Creating account…' : 'Create account' }}
+        </PrimaryButton>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-neutral-text/60">
+        Already have an account?
+        <Link :href="route('login')" class="font-medium text-primary-dark hover:underline">Sign in</Link>
+    </p>
 </template>

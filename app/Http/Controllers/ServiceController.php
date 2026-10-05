@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreServiceRequest;
 use App\Http\Requests\UpdateServiceRequest;
 use App\Models\Service;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 
 class ServiceController extends Controller
 {
+    /** Public services page. */
     public function index()
     {
         return Inertia::render('Services/Index', [
@@ -18,28 +20,34 @@ class ServiceController extends Controller
 
     public function adminIndex()
     {
-        return Inertia::render('Admin/Services/Index', ['services' => Service::latest()->get()]);
+        return Inertia::render('Admin/Services/Index', [
+            'services' => Service::latest()->get(),
+        ]);
     }
 
     public function store(StoreServiceRequest $request)
     {
-        Service::create($request->validated());
+        $service = Service::create(Arr::except($request->validated(), ['image', 'remove_image']));
 
-        return back()->with('success', 'Service created.');
+        return $service->syncImage($request)
+            ? back()->with('success', 'Service created.')
+            : back()->with('error', 'Service created, but the image upload failed. Try adding the image again.');
     }
 
     public function update(UpdateServiceRequest $request, Service $service)
     {
-        $service->update($request->validated());
+        $service->update(Arr::except($request->validated(), ['image', 'remove_image']));
 
-        return back()->with('success', 'Service updated.');
+        return $service->syncImage($request)
+            ? back()->with('success', 'Service updated.')
+            : back()->with('error', 'Service updated, but the image upload failed. Try again.');
     }
 
     public function destroy(Service $service)
     {
         $this->authorize('delete', $service);
 
-        $service->delete();
+        $service->delete(); // HasCloudinaryImage also removes the Cloudinary file
 
         return back()->with('success', 'Service removed.');
     }

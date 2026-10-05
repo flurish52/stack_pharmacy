@@ -1,4 +1,3 @@
-<?php
 @component('mail::message')
     # New order received
 
