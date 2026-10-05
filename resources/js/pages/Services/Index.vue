@@ -24,7 +24,7 @@ const activeServices = computed(() => props.services.filter((s) => s.is_active !
                 Services
             </h1>
             <p class="mt-1 max-w-lg text-sm text-neutral-text/60">
-                Some questions a product page can't answer. Bring them to a pharmacist instead.
+                At Stack Pharmacy, Ltd, we are more than just a place to buy drugs, we are your health partner.
             </p>
         </div>
 

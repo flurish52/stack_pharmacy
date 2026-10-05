@@ -1,10 +1,12 @@
 <script setup>
 /**
- * Home page. Composition only — every section owns its own markup, so this
+ * Home page. Composition only: every section owns its own markup, so this
  * file stays readable and sections can be reordered or reused elsewhere.
+ * Order follows the client's homepage copy: hero, motto, why Obudu trusts us.
  */
 import { Head } from '@inertiajs/vue3'
 import HeroSection from '@/Components/Welcome/HeroSection.vue'
+import MottoBanner from '@/Components/Welcome/MottoBanner.vue'
 import TrustStrip from '@/Components/Welcome/TrustStrip.vue'
 import ServicesSection from '@/Components/Welcome/ServicesSection.vue'
 import CategoryStrip from '@/Components/Welcome/CategoryStrip.vue'
@@ -23,16 +25,17 @@ defineProps({
 </script>
 
 <template>
-    <Head title="Stack Pharmacy" />
+    <Head title="Stack Pharmacy, Ltd" />
 
     <div>
         <HeroSection
             :shop-href="route('shop.index')"
-            :whatsapp-href="`https://wa.me/${$page.props.pharmacyWhatsapp}`"
-            background-image-src="/storage/assets/stack_pharmacy.png"
+            flyer-src="/storage/assets/stack_pharmacy.png"
         />
 
-        <TrustStrip class="relative z-10 -mt-10 md:-mt-14" />
+        <MottoBanner />
+
+        <TrustStrip />
 
         <AboutTeaser :about="aboutPage" />
 

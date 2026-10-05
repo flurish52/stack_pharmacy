@@ -6,6 +6,11 @@ const props = defineProps({
     channels: { type: Array, default: () => [] },
 })
 
+const businessName = 'Stack Pharmacy'
+const address = 'Stack Pharmacy, Ltd \n Cyclist Park, Obudu \n Obudu LGA, Cross River State, Nigeria'
+const mapEmbedSrc = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d990.7075002334345!2d9.164380771769137!3d6.667977153387201!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x105bdfde8d9e617b%3A0xa22e6b4697943f11!2sSTACK%20PHARMACY!5e0!3m2!1sen!2sng!4v1790244087531!5m2!1sen!2sng'
+const directionsHref = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`
+
 const page = usePage()
 
 const platformMeta = {
@@ -59,10 +64,10 @@ const sortedChannels = computed(() =>
     <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 md:py-12">
         <div>
             <h1 class="font-heading text-xl font-semibold tracking-tight text-neutral-text sm:text-2xl">
-                Get in touch
+                Contact Stack Pharmacy, Ltd
             </h1>
             <p class="mt-1 max-w-lg text-sm text-neutral-text/60">
-                However you'd rather reach us, we're here — pick whatever's easiest.
+                At Stack Pharmacy, Ltd, we are more than just a place to buy drugs, we are your health partner.
             </p>
         </div>
 
@@ -97,4 +102,52 @@ const sortedChannels = computed(() =>
             <p class="text-sm text-neutral-text/70">No contact channels set up yet.</p>
         </div>
     </div>
+
+    <!-- Visit Us -->
+    <section class="bg-white py-16" aria-labelledby="visit-us-heading">
+        <div class="mx-auto max-w-5xl px-6">
+            <div class="mb-10 text-center">
+                <h2 id="visit-us-heading" class="text-2xl font-bold text-gray-900">Visit Us</h2>
+                <p class="mt-2 text-gray-600">We would love to hear from you. Visit us or reach us via phone or WhatsApp.</p>
+            </div>
+
+            <div class="grid gap-8 md:grid-cols-5 md:items-start">
+                <!-- Address + directions -->
+                <div class="md:col-span-2">
+                    <address class="not-italic">
+                        <p class="text-sm font-semibold uppercase tracking-wide text-emerald-600">Our Location</p>
+                        <p class="mt-2 text-lg font-semibold text-gray-900">{{ businessName }}</p>
+                        <p class="text-lg text-gray-900">Cyclist Park, Obudu</p>
+                        <p class="text-lg text-gray-900">Obudu LGA, Cross River State, Nigeria</p>
+                    </address>
+
+
+                    <a :href="directionsHref"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="mt-6 inline-flex items-center gap-2 rounded-md bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700"
+                    >
+                        Get Directions
+                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Map -->
+                <div class="overflow-hidden rounded-lg border border-gray-200 md:col-span-3">
+                    <iframe
+                        :src="mapEmbedSrc"
+                        width="100%"
+                        height="320"
+                        style="border: 0"
+                        allowfullscreen
+                        loading="lazy"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        :title="`Map showing ${businessName} at 9 Calabar Road, Obudu`"
+                    />
+                </div>
+            </div>
+        </div>
+    </section>
 </template>

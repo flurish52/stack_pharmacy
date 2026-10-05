@@ -7,7 +7,7 @@ const props = defineProps({
 })
 
 const businessName = 'Stack Pharmacy'
-const address = 'Stack Pharmacy, 9 Calabar Road, Obudu 552106, Cross River'
+const address = 'Stack Pharmacy, Ltd \n Cyclist Park, Obudu \n Obudu LGA, Cross River State, Nigeria'
 const mapEmbedSrc = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d990.7075002334345!2d9.164380771769137!3d6.667977153387201!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x105bdfde8d9e617b%3A0xa22e6b4697943f11!2sSTACK%20PHARMACY!5e0!3m2!1sen!2sng!4v1790244087531!5m2!1sen!2sng'
 const directionsHref = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`
 </script>
@@ -54,7 +54,7 @@ const directionsHref = `https://www.google.com/maps/dir/?api=1&destination=${enc
         <div class="mx-auto max-w-5xl px-6">
             <div class="mb-10 text-center">
                 <h2 id="visit-us-heading" class="text-2xl font-bold text-gray-900">Visit Us</h2>
-                <p class="mt-2 text-gray-600">Stop by our store — we're easy to find and happy to help in person.</p>
+                <p class="mt-2 text-gray-600">We would love to hear from you. Visit us or reach us via phone or WhatsApp.</p>
             </div>
 
             <div class="grid gap-8 md:grid-cols-5 md:items-start">
@@ -63,8 +63,8 @@ const directionsHref = `https://www.google.com/maps/dir/?api=1&destination=${enc
                     <address class="not-italic">
                         <p class="text-sm font-semibold uppercase tracking-wide text-emerald-600">Our Location</p>
                         <p class="mt-2 text-lg font-semibold text-gray-900">{{ businessName }}</p>
-                        <p class="text-lg text-gray-900">9 Calabar Road</p>
-                        <p class="text-lg text-gray-900">Obudu 552106, Cross River</p>
+                        <p class="text-lg text-gray-900">Cyclist Park, Obudu</p>
+                        <p class="text-lg text-gray-900">Obudu LGA, Cross River State, Nigeria</p>
                     </address>
 
 

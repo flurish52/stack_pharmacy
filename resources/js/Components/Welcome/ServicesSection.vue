@@ -43,8 +43,8 @@ const iconFor = (service) => icons[service.icon] ?? icons.default
         </div>
 
         <SectionHeading
-            title="Need more than a product?"
-            lead="Some questions a product page can't answer. Bring them to a pharmacist instead."
+            title="Our Services at Stack Pharmacy, Ltd"
+            lead="At Stack Pharmacy, Ltd, we are more than just a place to buy drugs, we are your health partner."
             class="[&_h2]:font-heading [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:text-neutral-text sm:[&_h2]:text-2xl [&_p]:mt-1 [&_p]:text-sm [&_p]:text-neutral-text/60"
         />
 
